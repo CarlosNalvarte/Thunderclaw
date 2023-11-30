@@ -1,6 +1,8 @@
 //All these motors are connected to a bipolar stepper motor driver A4988. We use only the STEP and DIR pins (control pins), 12V motors
 //All inputs work with 5V
 //The claw(servo) works with 5V
+#include <Servo.h>
+Servo CLAW;
 
 const int Opto_Art1 = 42;
 const int Opto_Art2 = 44;
@@ -30,15 +32,12 @@ const int Art56_Left_DIR = 33;
 const int Art56_Right_STEP = 27;
 const int Art56_Right_DIR = 35;
 
-const int ClawPWM = 7;
-/*
-unsigned long previousMotor1Time = millis();
-unsigned long previousMotor2Time = millis();
-long Motor1Interval = 0.001;
-long Motor2Interval = 0.001;
-*/
+const int Claw = 7;
+const int CLAW_pos = 0;
+
 void setup() {
   //Code that runs once
+  CLAW.attach(7);
   Serial.begin(9600);
   while (!Serial)
     ;
@@ -74,13 +73,13 @@ void setup() {
   pinMode(35, OUTPUT);  //ART 56 DIR RIGHT MOTOR
 
   //CLAW OUTPUT-------------------------------------
-  pinMode(7, OUTPUT);  //CLAW PWM OUTPUT 5V
+  //pinMode(7, OUTPUT);  //CLAW PWM OUTPUT 5V
 }
 
 void loop() {
 
   //this small section is useful to test the functionality of the opto sensors and switc
-  /*
+  ///*
   Serial.println("Gladys says: ");
   Serial.print("Art1: ");
   Serial.println(digitalRead(42));
@@ -90,8 +89,11 @@ void loop() {
   Serial.println(digitalRead(49));
   Serial.print("SWITCH: ");
   Serial.println(digitalRead(47));
-//*/
   delay(1000);
+   //*/
+
+
+
   auto aval = Serial.available();
 
   if (aval > 0) {
@@ -122,6 +124,7 @@ void loop() {
         home2motors_head(25, 33, 47);          // makes contact with the switch and then returns back the base of the claw to the middle of the head
         home_claw_column(25, 33, 27, 35, 47);  //rotates the base of the claw a certain number of degrees based on the number of steps
                                                //needs hard testing to be accurate and a base position to start with
+        claw_game();
         break;
 
       case 2:                         //AUTO MODE
@@ -199,7 +202,12 @@ void loop() {
 
       case 4:
         Serial.println("tests");
-        moveit(2000,1500,4000,1000);
+        moveit(4000, 6000, 3600, 1000);
+        break;
+
+      case 5:
+        //Claw_pos can only go from 0 to 90
+        claw_game();
         break;
 
       default:
@@ -207,7 +215,6 @@ void loop() {
         Serial.println("1 - HOME");
         Serial.println("2 - AUTO");
         Serial.println("3 - MANUAL");
-
         break;
     }
   }
@@ -215,10 +222,7 @@ void loop() {
 
 void home1Motor(const int STEP, const int DIR, const int OPTO) {
   /*
-  Serial.println("--------------");
-  Serial.println(STEP);
-  Serial.println(DIR);
-  Serial.println(OPTO);
+  Serial.println("--------------");  Serial.println(STEP);  Serial.println(DIR);  Serial.println(OPTO);
 */
   Serial.println("the motor is just about to rotate CW");
   delay(500);
@@ -265,8 +269,13 @@ void home1Motor(const int STEP, const int DIR, const int OPTO) {
   }
   Serial.print("Sensor value is: ");
   Serial.println(digitalRead(OPTO));
-  Serial.println("If zero, the notch was found. If one, the notch wasn't found");
-  Serial.println("the end");
+  if (OPTO == 0) {
+    Serial.println("The notch was found!");
+  } else {
+    Serial.println("I didn't find the notch :(");
+  }
+
+  Serial.println("Next sequence is about to start");
 }
 int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw support from left to right until it reaches the switch
                                                  //after that, it returns the claw column back to the middle position based on the number of steps
@@ -276,10 +285,7 @@ int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw support f
   delay(500);
   digitalWrite(DIR, LOW);            //MOTOR GOES CW
   for (int i = 0; i < 10000; i++) {  //1035 was gud for a full rotation
-    //I think I was using full step mode
-    //int inc;
-    // inc++;
-    //Serial.println(inc);
+
     if (digitalRead(SW) == HIGH) {
       Serial.println("The switch was found!!");  //as soon as the switch is pressed by the claw column, the claw goes back to the mid section of the robotic arm head
 
@@ -289,7 +295,7 @@ int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw support f
     digitalWrite(STEP, HIGH);
     delayMicroseconds(100);   //these two delays could be controlled. Right now D=0.25 and period is 1ms. f=1khz
     digitalWrite(STEP, LOW);  //including the dead time of 10ms, 1ms +10ms is 11ms so period is 11ms. f=90.9
-    delayMicroseconds(400);
+    delayMicroseconds(350);
 
     //delay(1); //this variable could be controlled
   }
@@ -299,7 +305,7 @@ int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw support f
     digitalWrite(STEP, HIGH);
     delayMicroseconds(100);   //these two delays could be controlled. Right now D=0.25 and period is 1ms. f=1khz
     digitalWrite(STEP, LOW);  //including the dead time of 10ms, 1ms +10ms is 11ms so period is 11ms. f=90.9
-    delayMicroseconds(400);
+    delayMicroseconds(350);
     //int inc;
     // inc++;
     //Serial.println(inc);
@@ -349,9 +355,11 @@ void HOME_MODE() {  //gathers all the home position commands into one function
   home_claw_column(25, 33, 27, 35, 47);  // rotation of the claw column
 }
 
-void moveit(int amount_of_steps_1, int amount_of_steps_2,int amount_of_steps_3,int amount_of_steps_4 ) {
+void moveit(int amount_of_steps_1, int amount_of_steps_2, int amount_of_steps_3, int amount_of_steps_4) {
 
-  int STEP_NUMBERS[4] = { amount_of_steps_1, amount_of_steps_2,amount_of_steps_3,amount_of_steps_4 };
+  int STEP_NUMBERS[4] = { amount_of_steps_1, amount_of_steps_2, amount_of_steps_3, amount_of_steps_4 };
+  int STEPS_PER_MOTOR[4] = { amount_of_steps_1, amount_of_steps_2, amount_of_steps_3, amount_of_steps_4 };
+
   int n = sizeof(STEP_NUMBERS) / sizeof(STEP_NUMBERS[0]);
 
   /*  for (int i = 0; i < n; i++) {
@@ -359,46 +367,8 @@ void moveit(int amount_of_steps_1, int amount_of_steps_2,int amount_of_steps_3,i
     Serial.print(" ");
   }*/
   bubbleSort(STEP_NUMBERS, n);
-  /*
-  Serial.println("\nSorted array:");
-  Serial.println(STEP_NUMBERS[0]);
-  Serial.println(STEP_NUMBERS[1]);
-*/
-  //int delta1 = abs(STEP_NUMBERS[0] - STEP_NUMBERS[1]);
 
- // int changing_step = STEP_NUMBERS[0];
-
- // Serial.println(STEP_NUMBERS[0]);
- // Serial.println(STEP_NUMBERS[1]);
-  parallel_motors(STEP_NUMBERS, 28, 36, 22, 30,23,31,25,33);
-  // change
-
-  /*
-  unsigned long currentMotor1Time = millis();
-  unsigned long currentMotor2Time = millis();
-  int a = 0;
-  int b = 0;
-  for (int i = 0; i < changing_step; i++) {
-    Serial.println(i);
-    digitalWrite(step_a, LOW);
-    currentMotor1Time = millis();
-
-    if (currentMotor1Time - previousMotor1Time > Motor1Interval) {
-      digitalWrite(step_a, HIGH);
-      previousMotor1Time = currentMotor1Time;
-      a++;
-    }
-
-    digitalWrite(step_b, LOW);
-    currentMotor2Time = millis();
-
-    if (currentMotor2Time - previousMotor2Time > Motor2Interval) {
-      digitalWrite(step_b, HIGH);
-      previousMotor2Time = currentMotor2Time;
-      b++;
-    }
-
-  }*/
+  parallel_motors(STEP_NUMBERS, STEPS_PER_MOTOR, 28, 36, 22, 30, 23, 31, 25, 33);
 }
 void bubbleSort(int arr[], int n) {  //bubble sorting algorithm
   for (int i = 0; i < n - 1; i++) {
@@ -413,20 +383,20 @@ void bubbleSort(int arr[], int n) {  //bubble sorting algorithm
   }
 }
 
-void parallel_motors(int array[],
-const int step_a, const int dir_a,
-const int step_b, const int dir_b,
-const int step_c, const int dir_c,
-const int step_d, const int dir_d) 
+void parallel_motors(int array[], int steps[],
+                     const int step_a, const int dir_a,
+                     const int step_b, const int dir_b,
+                     const int step_c, const int dir_c,
+                     const int step_d, const int dir_d)
 
 
 {
-  digitalWrite(dir_a, LOW);//
-  digitalWrite(dir_b, LOW);//
-  digitalWrite(dir_c, LOW);// 
-  digitalWrite(dir_d, LOW);// moves towards the switch
+  digitalWrite(dir_a, LOW);  //
+  digitalWrite(dir_b, LOW);  //
+  digitalWrite(dir_c, LOW);  //
+  digitalWrite(dir_d, LOW);  // moves towards the switch
 
-
+  Serial.println("SORTING ARRAY TO RECOGNIZE THE GREATEST STEP NUMBER");
   Serial.print("first #: ");
   Serial.println(array[0]);
   Serial.print("second #: ");
@@ -436,23 +406,32 @@ const int step_d, const int dir_d)
   Serial.print("fourth #: ");
   Serial.println(array[3]);
 
+  Serial.println("STEPS PER MOTOR");
+  Serial.print("first #: ");
+  Serial.println(steps[0]);
+  Serial.print("second #: ");
+  Serial.println(steps[1]);
+  Serial.print("third #: ");
+  Serial.println(steps[2]);
+  Serial.print("fourth #: ");
+  Serial.println(steps[3]);
+
+
 
   int max_step = array[3];
- // unsigned long currentMotor1Time = millis();
- // unsigned long currentMotor2Time = millis();
-  int a = 0;
-  int b = 0;
-  int c = 0;
-  int d = 0;
+  Serial.println(array[3]);
+  int a = 0, b = 0, c = 0, d = 0;
+  int art1 = 0, art3 = 0, art4 = 0, art5 = 0;
+
   digitalWrite(step_a, LOW);
   digitalWrite(step_b, LOW);
   digitalWrite(step_c, LOW);
   digitalWrite(step_d, LOW);
 
-  for (int i = 0; i < max_step; i++) {
+  for (int i = 0; i <= max_step; i++) {
     //Serial.println(i);
 
-    if (a <= array[0]) {
+    if (a <= steps[0]) {
       digitalWrite(step_a, HIGH);
       delayMicroseconds(100);
       digitalWrite(step_a, LOW);
@@ -460,12 +439,13 @@ const int step_d, const int dir_d)
       a++;
     }
 
-    if((a == array[0])){
+    if ((a == steps[0])) {
+      art1 = 1;
       Serial.println("a is done");
     }
 
 
-    if (b <= array[1]) {
+    if (b <= steps[1]) {
       digitalWrite(step_b, HIGH);
       delayMicroseconds(100);
       digitalWrite(step_b, LOW);
@@ -473,11 +453,12 @@ const int step_d, const int dir_d)
       b++;
     }
 
-       if((b == array[1])){
+    if ((b == steps[1])) {
+      art3 = 1;
       Serial.println("b is done");
     }
 
-    if (c <= array[2]) {
+    if (c <= steps[2]) {
       digitalWrite(step_c, HIGH);
       delayMicroseconds(100);
       digitalWrite(step_c, LOW);
@@ -485,51 +466,67 @@ const int step_d, const int dir_d)
       c++;
     }
 
-       if((c == array[2])){
+    if ((c == steps[2])) {
+      art4 = 1;
       Serial.println("c is done");
     }
 
-    if (d <= array[3]) {
-      digitalWrite(step_d, HIGH);
-      delayMicroseconds(100);
-      digitalWrite(step_d, LOW);
-      delayMicroseconds(350);
-      d++;
+    if (d <= steps[3]) {
+      if (digitalRead(SW_Art56) == 0) {
+        digitalWrite(step_d, HIGH);
+        delayMicroseconds(100);
+        digitalWrite(step_d, LOW);
+        delayMicroseconds(350);
+        d++;
+      }
     }
 
-       if((d == array[3])){
+    if ((d == steps[3])) {
+      art5 = 1;
       Serial.println("d is done");
     }
-
-
-
-
-    /*currentMotor1Time = millis();
-
-    if (currentMotor1Time - previousMotor1Time > Motor1Interval) {
-      digitalWrite(step_a, HIGH);
-      delayMicroseconds(350);
-      previousMotor1Time = currentMotor1Time;
-      a++;
-    }
-
-    digitalWrite(step_b, LOW);
-     delayMicroseconds(650);
-    currentMotor2Time = millis();
-
-    if (currentMotor2Time - previousMotor2Time > Motor2Interval) {
-      digitalWrite(step_b, HIGH);
-      delayMicroseconds(350);
-      previousMotor2Time = currentMotor2Time;
-      b++;
-    }*/
   }
   delay(500);
-  Serial.println("done");
+  if (art1 == 1 && art3 == 1 && art4 == 1 && art5 == 1) {
+    Serial.println("MISSION COMPLETE");
+  }
 }
 
+
+void claw_game() {
+  //the claw dancing like it should
+
+  CLAW.write(0);
+  delay(250);
+  CLAW.write(15);
+  delay(250);
+  CLAW.write(25);
+  delay(250);
+  CLAW.write(35);
+  delay(250);
+  CLAW.write(45);
+  delay(250);
+  CLAW.write(55);
+  delay(250);
+  CLAW.write(65);
+  delay(250);
+  CLAW.write(75);
+  delay(250);
+  CLAW.write(85);
+  delay(250);
+
+  for (int CLAW_pos = 0; CLAW_pos <= 90; CLAW_pos += 1) {
+    CLAW.write(CLAW_pos);
+    delay(25);
+  }
+
+  for (int CLAW_pos = 90; CLAW_pos >= 0; CLAW_pos -= 1) {
+    CLAW.write(CLAW_pos);
+    delay(25);
+  }
+}
 //--------------------------------------------------------------------------------------------------------------------------
-//these two functions have not been implemented yet  manual1MotorCW and manual1MotorCCW
+//these two functions have NOT been implemented yet  manual1MotorCW and manual1MotorCCW
 int manual1MotorCW(int STEP, int DIR) {
   digitalWrite(DIR, HIGH);
   int count_1M = 0;
