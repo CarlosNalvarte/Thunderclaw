@@ -84,7 +84,7 @@ void setup() {
 void loop() {
 
   //this small section is useful to test the functionality of the opto sensors and switc
-  
+  /*
   Serial.println("Gladys says: ");
   Serial.print("Art1: ");
   Serial.println(digitalRead(42));
@@ -95,9 +95,19 @@ void loop() {
   Serial.print("SWITCH: ");
   Serial.println(digitalRead(47));
   delay(1000);
-   //*/
-
-
+   
+  Serial.println("art1: ");
+  Serial.println(art1_steps);
+  Serial.println("art3: ");
+  Serial.println(art3_steps);
+  Serial.println("art4: ");
+  Serial.println(art4_steps);
+  Serial.println("art5: ");
+  Serial.println(art5_steps);
+  Serial.println("art6: ");
+  Serial.println(art6_steps);
+  delay(1000);
+*/
 
   auto aval = Serial.available();
 
@@ -106,7 +116,7 @@ void loop() {
     auto read = input.length();
     while (aval > ++read)
       Serial.read();
-
+    CLAW.write(45);
     auto incomingByte = input.toInt();
 
     switch (incomingByte) {
@@ -128,24 +138,12 @@ void loop() {
         home2motors_head(25, 33, 47);          // makes contact with the switch and then returns back the base of the claw to the middle of the head
         home_claw_column(25, 33, 27, 35, 47);  //rotates the base of the claw a certain number of degrees based on the number of steps
                                                //needs hard testing to be accurate and a base position to start with
-        claw_game();
-        Serial.println("Art1_steps: ");
-        Serial.println(art1_steps);
-        Serial.println("Art3_steps: ");
-        Serial.println(art3_steps);
-        Serial.println("Art4_steps: ");
-        Serial.println(art4_steps);
-        Serial.println("Art5_steps: ");
-        Serial.println(art5_steps);
-        Serial.println("Art6_steps: ");
-        Serial.println(art6_steps);
-        Serial.println("HOME MODE WAS REACHED!");
 
-        art1_steps = 0;
-        art3_steps = 0;
-        art4_steps = 0;
-        art5_steps = 0;
-        art6_steps = 0;
+
+
+        Serial.println("HOME MODE WAS REACHED!");
+        claw_game();
+
         break;
 
       case 2:                         //AUTO MODE
@@ -224,11 +222,19 @@ void loop() {
 
       case 4:
         Serial.println("tests");
-        HOME_MODE();
-        claw_game();
-        moveit(-4000, 6000, -3600, 1000);
-        HOME_MODE();
-        claw_game();
+
+        home1Motor(28, 36, 42);                //art 1
+        home1Motor(22, 30, 48);                //art 3
+        home1Motor(23, 31, 49);                //art 4
+        home2motors_head(25, 33, 47);          //art56 left to right movement
+       // home_claw_column(25, 33, 27, 35, 47);  // rotation of the claw column
+
+        delay(2000);
+        returnHOME(28, 36, 22, 30, 23, 31, 25, 33);
+        //claw_game();
+        // moveit(-4000, 6000, -3600, 1000);
+        // HOME_MODE();
+        // claw_game();
         break;
 
       case 5:
@@ -304,11 +310,23 @@ void home1Motor(const int STEP, const int DIR, const int OPTO) {
   }
   Serial.print("Sensor value is: ");
   Serial.println(digitalRead(OPTO));
-  if (OPTO == 0) {
+  if (digitalRead(OPTO) == 0) {
     Serial.println("The notch was found!");
   } else {
     Serial.println("I didn't find the notch :(");
   }
+
+  Serial.println("Art1_steps: ");
+  Serial.println(art1_steps);
+  Serial.println("Art3_steps: ");
+  Serial.println(art3_steps);
+  Serial.println("Art4_steps: ");
+  Serial.println(art4_steps);
+  Serial.println("Art5_steps: ");
+  Serial.println(art5_steps);
+  Serial.println("Art6_steps: ");
+  Serial.println(art6_steps);
+
 
   Serial.println("Next sequence is about to start");
 }
@@ -318,7 +336,7 @@ int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw support f
 {
   Serial.println("the motor is just about to rotate CW");
   delay(500);
-  digitalWrite(DIR, LOW);            //MOTOR GOES CW
+  digitalWrite(DIR, LOW);            //MOTOR GOES CCW
   for (int i = 0; i < 10000; i++) {  //1035 was gud for a full rotation
 
     if (digitalRead(SW) == HIGH) {
@@ -349,6 +367,17 @@ int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw support f
     //delay(1); //this variable could be controlled
   }
   Serial.println("the base of the claw has returned to the middle");
+
+  Serial.println("Art1_steps: ");
+  Serial.println(art1_steps);
+  Serial.println("Art3_steps: ");
+  Serial.println(art3_steps);
+  Serial.println("Art4_steps: ");
+  Serial.println(art4_steps);
+  Serial.println("Art5_steps: ");
+  Serial.println(art5_steps);
+  Serial.println("Art6_steps: ");
+  Serial.println(art6_steps);
 }
 
 
@@ -380,6 +409,18 @@ int home_claw_column(int STEP1, int DIR1, int STEP2, int DIR2, int SW) {
     }
   }
   Serial.println("the claw has rotated");
+
+  Serial.println("Art1_steps: ");
+  Serial.println(art1_steps);
+  Serial.println("Art3_steps: ");
+  Serial.println(art3_steps);
+  Serial.println("Art4_steps: ");
+  Serial.println(art4_steps);
+  Serial.println("Art5_steps: ");
+  Serial.println(art5_steps);
+  Serial.println("Art6_steps: ");
+  Serial.println(art6_steps);
+  delay(1);
 }
 
 void HOME_MODE() {  //gathers all the home position commands into one function
@@ -484,10 +525,14 @@ void parallel_motors(int array[], int steps[],
   digitalWrite(step_d, LOW);
 
   for (int i = 0; i <= max_step; i++) {
-    
-//Serial.println(i);
-    if ((abs(a) <= abs(steps[0]) && (art1==0))) {
-      if(steps[0]>=0){a++;} else{ a--;}
+
+    //Serial.println(i);
+    if ((abs(a) <= abs(steps[0]) && (art1 == 0))) {
+      if (steps[0] >= 0) {
+        a++;
+      } else {
+        a--;
+      }
       digitalWrite(step_a, HIGH);
       delayMicroseconds(100);
       digitalWrite(step_a, LOW);
@@ -496,17 +541,21 @@ void parallel_motors(int array[], int steps[],
 
     if (abs(a) == abs(steps[0])) {
       art1 = 1;
-     // Serial.println("a is done");
-//Serial.println(a);
+      // Serial.println("a is done");
+      //Serial.println(a);
     }
 
 
-    if ((abs(b) <= abs(steps[1]) && art3==0)) {
-      if(steps[1]>=0){b++;} else{ b--;}
+    if ((abs(b) <= abs(steps[1]) && art3 == 0)) {
+      if (steps[1] >= 0) {
+        b++;
+      } else {
+        b--;
+      }
       digitalWrite(step_b, HIGH);
       delayMicroseconds(100);
       digitalWrite(step_b, LOW);
-      delayMicroseconds(350);      
+      delayMicroseconds(350);
     }
 
     if (abs(b) == abs(steps[1])) {
@@ -515,41 +564,65 @@ void parallel_motors(int array[], int steps[],
       //Serial.println(b);
     }
 
-    if ((abs(c) <= abs(steps[2])) && (art4==0)) {
-      if(steps[2]>=0){c++;} else{ c--;}
+    if ((abs(c) <= abs(steps[2])) && (art4 == 0)) {
+      if (steps[2] >= 0) {
+        c++;
+      } else {
+        c--;
+      }
       digitalWrite(step_c, HIGH);
       delayMicroseconds(100);
       digitalWrite(step_c, LOW);
-      delayMicroseconds(350);      
+      delayMicroseconds(350);
     }
 
     if (abs(c) == abs(steps[2])) {
       art4 = 1;
-     // Serial.println("c is done");
-     // Serial.println(c);
+      // Serial.println("c is done");
+      // Serial.println(c);
     }
 
-    if ((abs(d) <= abs(steps[3]) && art5==0 )) {
+    if ((abs(d) <= abs(steps[3]) && art5 == 0)) {
       if (digitalRead(SW_Art56) == 0) {
-        if(steps[3]>=0){d++;} else{ d--;}
+        if (steps[3] >= 0) {
+          d++;
+        } else {
+          d--;
+        }
         digitalWrite(step_d, HIGH);
         delayMicroseconds(100);
         digitalWrite(step_d, LOW);
-        delayMicroseconds(350);        
+        delayMicroseconds(350);
       }
     }
 
     if (abs(d) == abs(steps[3])) {
       art5 = 1;
       //Serial.println("d is done");
-     // Serial.println(d);
+      // Serial.println(d);
     }
   }
+  Serial.println("before the sum: ");
+  Serial.println(art1_steps);
+  Serial.println(art3_steps);
+  Serial.println(art4_steps);
+  Serial.println(art5_steps);
 
-Serial.println(a);
-Serial.println(b);
-Serial.println(c);
-Serial.println(d);
+  art1_steps = art1_steps + a;
+  art3_steps = art3_steps + b;
+  art4_steps = art4_steps + c;
+  art5_steps = art5_steps + d;
+
+  Serial.println("after the sum: ");
+  Serial.println(art1_steps);
+  Serial.println(art3_steps);
+  Serial.println(art4_steps);
+  Serial.println(art5_steps);
+  Serial.println("a/b/c/d values added: ");
+  Serial.println(a);
+  Serial.println(b);
+  Serial.println(c);
+  Serial.println(d);
 
   if (art1 == 1 && art3 == 1 && art4 == 1 && art5 == 1) {
     Serial.println("MISSION COMPLETE");
@@ -588,7 +661,144 @@ void claw_game() {
     CLAW.write(CLAW_pos);
     delay(25);
   }
+
+  CLAW.write(45);
 }
+
+void returnHOME(const int step_a, const int dir_a,
+                const int step_b, const int dir_b,
+                const int step_c, const int dir_c,
+                const int step_d, const int dir_d) {
+
+  int a = 0, b = 0, c = 0, d = 0;
+
+  digitalWrite(step_a, LOW);
+  digitalWrite(step_b, LOW);
+  digitalWrite(step_c, LOW);
+  digitalWrite(step_d, LOW);
+
+  Serial.println("1st art steps is: ");
+  Serial.println(art1_steps);
+  Serial.println("3rd art steps is: ");
+  Serial.println(art3_steps);
+  Serial.println("4th art steps is: ");
+  Serial.println(art4_steps);
+  Serial.println("5th art steps is: ");
+  Serial.println(art5_steps);
+  /////////////////////////////////////////////////////////ART1
+  if (art1_steps >= 0) {
+    digitalWrite(dir_a, LOW);
+    for (int i = 0; i <= art1_steps; i++) {
+
+      if (art1_steps == 0) { break; }
+      a--;
+      digitalWrite(step_a, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_a, LOW);
+      delayMicroseconds(350);
+    }
+  }
+
+  if (art1_steps < 0) {
+    digitalWrite(dir_a, HIGH);
+    for (int i = 0; i > art1_steps; i--) {
+      a++;
+      digitalWrite(step_a, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_a, LOW);
+      delayMicroseconds(350);
+    }
+  }
+  /////////////////////////////////////////////////////////ART3
+  if (art3_steps >= 0) {
+    digitalWrite(dir_b, LOW);
+    for (int i = 0; i <= art3_steps; i++) {
+
+      if (art3_steps == 0) { break; }
+      b--;
+      digitalWrite(step_b, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_b, LOW);
+      delayMicroseconds(350);
+    }
+
+
+
+  }
+  if (art3_steps < 0) {
+    digitalWrite(dir_b, HIGH);
+    for (int i = 0; i > art3_steps; i--) {
+      b++;
+      digitalWrite(step_b, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_b, LOW);
+      delayMicroseconds(350);
+    }
+  }
+
+  /////////////////////////////////////////////////////////ART4
+  if (art4_steps >= 0) {
+    digitalWrite(dir_c, LOW);
+    for (int i = 0; i <= art4_steps; i++) {
+      if (art4_steps == 0) { break; }
+      c--;
+      digitalWrite(step_c, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_c, LOW);
+      delayMicroseconds(350);
+    }
+  }
+  if (art4_steps < 0) {
+    digitalWrite(dir_c, HIGH);
+    for (int i = 0; i > art4_steps; i--) {
+      c++;
+      digitalWrite(step_c, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_c, LOW);
+      delayMicroseconds(350);
+    }
+  }
+  /////////////////////////////////////////////////////////ART5
+
+  if (art5_steps >= 0) {
+    digitalWrite(dir_d, LOW);
+    for (int i = 0; i <= art5_steps; i++) {
+      if (art5_steps == 0) { break; }
+      d--;
+      digitalWrite(step_d, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_d, LOW);
+      delayMicroseconds(350);
+    }
+  }
+  if (art5_steps < 0) {
+    digitalWrite(dir_d, HIGH);
+    for (int i = 0; i > art5_steps; i--) {
+      d++;
+      digitalWrite(step_d, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_d, LOW);
+      delayMicroseconds(350);
+    }
+  }
+
+  art1_steps = art1_steps + a;
+  art3_steps = art3_steps + b;
+  art4_steps = art4_steps + c;
+  art5_steps = art5_steps + d;
+
+
+
+  Serial.println("1st art steps is: ");
+  Serial.println(art1_steps);
+  Serial.println("3rd art steps is: ");
+  Serial.println(art3_steps);
+  Serial.println("4th art steps is: ");
+  Serial.println(art4_steps);
+  Serial.println("5th art steps is: ");
+  Serial.println(art5_steps);
+}
+
 //--------------------------------------------------------------------------------------------------------------------------
 //these two functions have NOT been implemented yet  manual1MotorCW and manual1MotorCCW
 int manual1MotorCW(int STEP, int DIR) {
