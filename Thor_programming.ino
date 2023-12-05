@@ -232,7 +232,7 @@ void loop() {
         // delay(2000);
         //  returnHOME(28, 36, 22, 30, 23, 31, 25, 33);
         //claw_game();
-        moveit(-0, -0, -0, -0);
+        moveit(0, -10,0, 0);
         Serial.println("I just moved it to pos 1");
         //delay(1000);
         //moveit(0, 0, 0, 0);
@@ -509,7 +509,6 @@ void parallel_motors(int array[], int steps[],
     digitalWrite(dir_d, LOW);
   }
 
-
   Serial.println("ORIGINAL SORTING ARRAY - LOWER TO GREATER");
   Serial.print("first #: ");
   Serial.println(array[0]);
@@ -519,7 +518,6 @@ void parallel_motors(int array[], int steps[],
   Serial.println(array[2]);
   Serial.print("fourth #: ");
   Serial.println(array[3]);
-
 
   Serial.println("MODIFIED SORTING ARRAY - LOWER TO GREATER FOR NEGATIVE NUMBERS");
   mod_array[0] = abs(array[0]);
@@ -560,7 +558,7 @@ void parallel_motors(int array[], int steps[],
 
 
   max_step = ABS_STEP_NUMBERS[3];
-  Serial.println("array[3] value is:");
+  Serial.println("Max value in the STEP number array is: ");
   Serial.println(ABS_STEP_NUMBERS[3]);
   int a = 0, b = 0, c = 0, d = 0;
   int art1 = 0, art3 = 0, art4 = 0, art5 = 0;
@@ -571,8 +569,7 @@ void parallel_motors(int array[], int steps[],
   digitalWrite(step_d, LOW);
 
   for (int i = 0; i <= max_step; i++) {
-    //Serial.println(i);
-    if ((abs(a) <= abs(steps[0]) && (art1 == 0))) {
+    if ((abs(a) <= abs(steps[0]) && (art1 == 0) && (steps[0]!=0))) {
       if (steps[0] >= 0) {
         a++;
       } else {
@@ -586,12 +583,10 @@ void parallel_motors(int array[], int steps[],
 
     if (abs(a) == abs(steps[0])) {
       art1 = 1;
-      // Serial.println("a is done");
-      //Serial.println(a);
     }
 
 
-    if ((abs(b) <= abs(steps[1]) && art3 == 0)) {
+    if ((abs(b) <= abs(steps[1]) && (art3 == 0) && (steps[1]!=0))) {
       if (steps[1] >= 0) {
         b++;
       } else {
@@ -605,11 +600,9 @@ void parallel_motors(int array[], int steps[],
 
     if (abs(b) == abs(steps[1])) {
       art3 = 1;
-      //Serial.println("b is done");
-      //Serial.println(b);
     }
 
-    if ((abs(c) <= abs(steps[2])) && (art4 == 0)) {
+    if ((abs(c) <= abs(steps[2])) && (art4 == 0) && (steps[2]!=0)) {
       if (steps[2] >= 0) {
         c++;
       } else {
@@ -623,11 +616,9 @@ void parallel_motors(int array[], int steps[],
 
     if (abs(c) == abs(steps[2])) {
       art4 = 1;
-      // Serial.println("c is done");
-      // Serial.println(c);
     }
 
-    if ((abs(d) <= abs(steps[3]) && art5 == 0)) {
+    if ((abs(d) <= abs(steps[3]) && (art5 == 0) && (steps[3]!=0))) {
       if (digitalRead(SW_Art56) == 0) {
         if (steps[3] >= 0) {
           d++;
@@ -643,8 +634,6 @@ void parallel_motors(int array[], int steps[],
 
     if (abs(d) == abs(steps[3])) {
       art5 = 1;
-      //Serial.println("d is done");
-      // Serial.println(d);
     }
   }
   Serial.println("before the sum: ");
