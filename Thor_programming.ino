@@ -223,16 +223,21 @@ void loop() {
       case 4:
         Serial.println("tests");
 
-        home1Motor(28, 36, 42);                //art 1
-        home1Motor(22, 30, 48);                //art 3
-        home1Motor(23, 31, 49);                //art 4
-        home2motors_head(25, 33, 47);          //art56 left to right movement
-       // home_claw_column(25, 33, 27, 35, 47);  // rotation of the claw column
+        // home1Motor(28, 36, 42);                //art 1
+        // home1Motor(22, 30, 48);                //art 3
+        //  home1Motor(23, 31, 49);                //art 4
+        //  home2motors_head(25, 33, 47);          //art56 left to right movement
+        // home_claw_column(25, 33, 27, 35, 47);  // rotation of the claw column
 
-        delay(2000);
-        returnHOME(28, 36, 22, 30, 23, 31, 25, 33);
+        // delay(2000);
+        //  returnHOME(28, 36, 22, 30, 23, 31, 25, 33);
         //claw_game();
-        // moveit(-4000, 6000, -3600, 1000);
+        moveit(-0, -0, -0, -0);
+        Serial.println("I just moved it to pos 1");
+        //delay(1000);
+        //moveit(0, 0, 0, 0);
+        //Serial.println("I just moved it to pos 2");
+
         // HOME_MODE();
         // claw_game();
         break;
@@ -441,6 +446,7 @@ void moveit(int amount_of_steps_1, int amount_of_steps_2, int amount_of_steps_3,
 
 
   bubbleSort(STEP_NUMBERS, n);
+
   for (int i = 0; i < n; i++) {
     Serial.print(STEP_NUMBERS[i]);
     Serial.print(" ");
@@ -451,6 +457,7 @@ void moveit(int amount_of_steps_1, int amount_of_steps_2, int amount_of_steps_3,
   parallel_motors(STEP_NUMBERS, STEPS_PER_MOTOR, 28, 36, 22, 30, 23, 31, 25, 33);
 }
 void bubbleSort(int arr[], int n) {  //bubble sorting algorithm
+
   for (int i = 0; i < n - 1; i++) {
     for (int j = 0; j < n - i - 1; j++) {
       if (arr[j] > arr[j + 1]) {
@@ -470,21 +477,32 @@ void parallel_motors(int array[], int steps[],
                      const int step_d, const int dir_d)
 
 {
+  if ((array[0] == 0) && (array[1] == 0) && (array[2] == 0) && (array[3] == 0)) {
+    Serial.println("no valid values detected");
+    return;
+  }
+
+  int max_step = 0;
+  int mod_array[4];
+
   if (steps[0] >= 0) {
     digitalWrite(dir_a, HIGH);
   } else {
     digitalWrite(dir_a, LOW);
   }
+
   if (steps[1] >= 0) {
     digitalWrite(dir_b, HIGH);
   } else {
     digitalWrite(dir_b, LOW);
   }
+
   if (steps[2] >= 0) {
     digitalWrite(dir_c, HIGH);
   } else {
     digitalWrite(dir_c, LOW);
   }
+
   if (steps[3] >= 0) {
     digitalWrite(dir_d, HIGH);
   } else {
@@ -492,7 +510,7 @@ void parallel_motors(int array[], int steps[],
   }
 
 
-  Serial.println("SORTING ARRAY TO RECOGNIZE THE GREATEST STEP NUMBER");
+  Serial.println("ORIGINAL SORTING ARRAY - LOWER TO GREATER");
   Serial.print("first #: ");
   Serial.println(array[0]);
   Serial.print("second #: ");
@@ -502,7 +520,32 @@ void parallel_motors(int array[], int steps[],
   Serial.print("fourth #: ");
   Serial.println(array[3]);
 
-  Serial.println("STEPS PER MOTOR");
+
+  Serial.println("MODIFIED SORTING ARRAY - LOWER TO GREATER FOR NEGATIVE NUMBERS");
+  mod_array[0] = abs(array[0]);
+  mod_array[1] = abs(array[1]);
+  mod_array[2] = abs(array[2]);
+  mod_array[3] = abs(array[3]);
+
+  int ABS_STEP_NUMBERS[4] = { mod_array[0], mod_array[1], mod_array[2], mod_array[3] };
+
+  int n = sizeof(ABS_STEP_NUMBERS) / sizeof(ABS_STEP_NUMBERS[0]);
+  bubbleSort(ABS_STEP_NUMBERS, n);
+  Serial.println("///////////////////////////////////////// ");
+  for (int i = 0; i < n; i++) {
+    Serial.print(ABS_STEP_NUMBERS[i]);
+    Serial.print(" ");
+  }
+  Serial.println(" ");
+
+  Serial.println("///////////////////////////////////////// ");
+
+
+
+
+
+
+  Serial.println("STEPS PER MOTOR - ENTERED WITH MOVEIT FN");
   Serial.print("first #: ");
   Serial.println(steps[0]);
   Serial.print("second #: ");
@@ -514,8 +557,11 @@ void parallel_motors(int array[], int steps[],
 
 
 
-  int max_step = abs(array[3]);
-  Serial.println(array[3]);
+
+
+  max_step = ABS_STEP_NUMBERS[3];
+  Serial.println("array[3] value is:");
+  Serial.println(ABS_STEP_NUMBERS[3]);
   int a = 0, b = 0, c = 0, d = 0;
   int art1 = 0, art3 = 0, art4 = 0, art5 = 0;
 
@@ -525,7 +571,6 @@ void parallel_motors(int array[], int steps[],
   digitalWrite(step_d, LOW);
 
   for (int i = 0; i <= max_step; i++) {
-
     //Serial.println(i);
     if ((abs(a) <= abs(steps[0]) && (art1 == 0))) {
       if (steps[0] >= 0) {
@@ -688,9 +733,11 @@ void returnHOME(const int step_a, const int dir_a,
   /////////////////////////////////////////////////////////ART1
   if (art1_steps >= 0) {
     digitalWrite(dir_a, LOW);
-    for (int i = 0; i <= art1_steps; i++) {
+    for (int i = 0; i < art1_steps; i++) {
 
-      if (art1_steps == 0) { break; }
+      if (art1_steps == 0) {
+        break;
+      }
       a--;
       digitalWrite(step_a, HIGH);
       delayMicroseconds(100);
@@ -712,18 +759,17 @@ void returnHOME(const int step_a, const int dir_a,
   /////////////////////////////////////////////////////////ART3
   if (art3_steps >= 0) {
     digitalWrite(dir_b, LOW);
-    for (int i = 0; i <= art3_steps; i++) {
+    for (int i = 0; i < art3_steps; i++) {
 
-      if (art3_steps == 0) { break; }
+      if (art3_steps == 0) {
+        break;
+      }
       b--;
       digitalWrite(step_b, HIGH);
       delayMicroseconds(100);
       digitalWrite(step_b, LOW);
       delayMicroseconds(350);
     }
-
-
-
   }
   if (art3_steps < 0) {
     digitalWrite(dir_b, HIGH);
@@ -739,8 +785,10 @@ void returnHOME(const int step_a, const int dir_a,
   /////////////////////////////////////////////////////////ART4
   if (art4_steps >= 0) {
     digitalWrite(dir_c, LOW);
-    for (int i = 0; i <= art4_steps; i++) {
-      if (art4_steps == 0) { break; }
+    for (int i = 0; i < art4_steps; i++) {
+      if (art4_steps == 0) {
+        break;
+      }
       c--;
       digitalWrite(step_c, HIGH);
       delayMicroseconds(100);
@@ -762,8 +810,10 @@ void returnHOME(const int step_a, const int dir_a,
 
   if (art5_steps >= 0) {
     digitalWrite(dir_d, LOW);
-    for (int i = 0; i <= art5_steps; i++) {
-      if (art5_steps == 0) { break; }
+    for (int i = 0; i < art5_steps; i++) {
+      if (art5_steps == 0) {
+        break;
+      }
       d--;
       digitalWrite(step_d, HIGH);
       delayMicroseconds(100);
@@ -788,7 +838,7 @@ void returnHOME(const int step_a, const int dir_a,
   art5_steps = art5_steps + d;
 
 
-
+  Serial.println("RETURN HOME POSITION: ");
   Serial.println("1st art steps is: ");
   Serial.println(art1_steps);
   Serial.println("3rd art steps is: ");
@@ -806,9 +856,9 @@ int manual1MotorCW(int STEP, int DIR) {
   int count_1M = 0;
   for (int i = 0; i > 1000; i++) {
     digitalWrite(STEP, HIGH);
-    delayMicroseconds(250);
+    delayMicroseconds(100);
     digitalWrite(STEP, LOW);
-    delayMicroseconds(750);
+    delayMicroseconds(350);
     count_1M + 100;
   }
   return count_1M;
@@ -819,9 +869,9 @@ int manual1MotorCCW(int STEP, int DIR) {
   int count_1M = 0;
   for (int i = 0; i > 1000; i++) {
     digitalWrite(STEP, HIGH);
-    delayMicroseconds(250);
+    delayMicroseconds(100);
     digitalWrite(STEP, LOW);
-    delayMicroseconds(750);
+    delayMicroseconds(350);
     count_1M - 100;
   }
   return count_1M;
