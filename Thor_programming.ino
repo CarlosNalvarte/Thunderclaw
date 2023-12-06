@@ -234,13 +234,9 @@ void loop() {
         home1Motor(23, 31, 49);  //art 4
 
         home2motors_head(25, 33, 47);  //art56 left to right movement
-*/
-        claw_column_CCW(25, 33, 27, 35, 47);  // rotation of the claw column
-        claw_column_CW(25, 33, 27, 35, 47);   // rotation of the claw column
-        delay(1000);
-        claw_column_CW(25, 33, 27, 35, 47);   // rotation of the claw column
-        claw_column_CCW(25, 33, 27, 35, 47);  // rotation of the claw column
-        /*
+
+        
+        
         art1_steps_count=0;
         art3_steps_count=0;
         art4_steps_count=0;
@@ -249,16 +245,27 @@ void loop() {
 
 
         delay(2000);
+*/
 
 
-        moveit(2500, 2000, 1000, -2000);
+
+
+
+        //moveit(-1300, -2200, 1500, 2000, -4000);
+        moveit(12800, 0, 0, 0, 0);
+        delay(1000);
+        returnHOME(28, 36, 22, 30, 23, 31, 25, 33, 27, 35);
+
+        //moveit(2500, 2000, 1000, -2000, 1000);
+
+        /*
         delay(2000);
         returnHOME(28, 36, 22, 30, 23, 31, 25, 33);
         delay(2000);
-        moveit(2500, 2000, 1000, -2000);
+        moveit(2500, 2000, 1000, -2000,1000);
         delay(2000);
         returnHOME(28, 36, 22, 30, 23, 31, 25, 33);
-
+*/
 
 
         //claw_game();
@@ -525,10 +532,10 @@ void HOME_MODE() {  //gathers all the home position commands into one function
   claw_column_CW(25, 33, 27, 35, 47);   // rotation of the claw column to the right
 }
 
-void moveit(int amount_of_steps_1, int amount_of_steps_2, int amount_of_steps_3, int amount_of_steps_4) {
+void moveit(int amount_of_steps_1, int amount_of_steps_2, int amount_of_steps_3, int amount_of_steps_4, int amount_of_steps_5) {
 
-  int STEP_NUMBERS[4] = { amount_of_steps_1, amount_of_steps_2, amount_of_steps_3, amount_of_steps_4 };
-  int STEPS_PER_MOTOR[4] = { amount_of_steps_1, amount_of_steps_2, amount_of_steps_3, amount_of_steps_4 };
+  int STEP_NUMBERS[5] = { amount_of_steps_1, amount_of_steps_2, amount_of_steps_3, amount_of_steps_4, amount_of_steps_5 };
+  int STEPS_PER_MOTOR[5] = { amount_of_steps_1, amount_of_steps_2, amount_of_steps_3, amount_of_steps_4, amount_of_steps_5 };
 
   int n = sizeof(STEP_NUMBERS) / sizeof(STEP_NUMBERS[0]);
 
@@ -542,7 +549,7 @@ void moveit(int amount_of_steps_1, int amount_of_steps_2, int amount_of_steps_3,
   Serial.println(" ");
 
 
-  parallel_motors(STEP_NUMBERS, STEPS_PER_MOTOR, 28, 36, 22, 30, 23, 31, 25, 33);
+  parallel_motors(STEP_NUMBERS, STEPS_PER_MOTOR, 28, 36, 22, 30, 23, 31, 25, 33, 27, 35);  //added STEP 27 and DIR 35
 }
 void bubbleSort(int arr[], int n) {  //bubble sorting algorithm
 
@@ -562,16 +569,17 @@ void parallel_motors(int array[], int steps[],
                      const int step_a, const int dir_a,
                      const int step_b, const int dir_b,
                      const int step_c, const int dir_c,
-                     const int step_d, const int dir_d)
+                     const int step_d, const int dir_d,
+                     const int step_e, const int dir_e)
 
 {
-  if ((array[0] == 0) && (array[1] == 0) && (array[2] == 0) && (array[3] == 0)) {
+  if ((array[0] == 0) && (array[1] == 0) && (array[2] == 0) && (array[3] == 0) && (array[4] == 0)) {
     Serial.println("no valid values detected");
     return;
   }
 
   int max_step = 0;
-  int mod_array[4];
+  int mod_array[5];
 
   if (steps[0] >= 0) {
     digitalWrite(dir_a, HIGH);
@@ -591,11 +599,11 @@ void parallel_motors(int array[], int steps[],
     digitalWrite(dir_c, LOW);
   }
 
-  if (steps[3] >= 0) {
-    digitalWrite(dir_d, HIGH);
-  } else {
-    digitalWrite(dir_d, LOW);
-  }
+
+
+
+
+
 
   Serial.println("ORIGINAL SORTING ARRAY - LOWER TO GREATER");
   Serial.print("first #: ");
@@ -606,14 +614,19 @@ void parallel_motors(int array[], int steps[],
   Serial.println(array[2]);
   Serial.print("fourth #: ");
   Serial.println(array[3]);
+  Serial.print("fifth #: ");
+  Serial.println(array[4]);
+
+
 
   Serial.println("MODIFIED SORTING ARRAY - LOWER TO GREATER FOR NEGATIVE NUMBERS");
   mod_array[0] = abs(array[0]);
   mod_array[1] = abs(array[1]);
   mod_array[2] = abs(array[2]);
   mod_array[3] = abs(array[3]);
+  mod_array[4] = abs(array[4]);
 
-  int ABS_STEP_NUMBERS[4] = { mod_array[0], mod_array[1], mod_array[2], mod_array[3] };
+  int ABS_STEP_NUMBERS[5] = { mod_array[0], mod_array[1], mod_array[2], mod_array[3], mod_array[4] };
 
   int n = sizeof(ABS_STEP_NUMBERS) / sizeof(ABS_STEP_NUMBERS[0]);
   bubbleSort(ABS_STEP_NUMBERS, n);
@@ -636,23 +649,24 @@ void parallel_motors(int array[], int steps[],
   Serial.println(steps[2]);
   Serial.print("fourth #: ");
   Serial.println(steps[3]);
+  Serial.print("fifth #: ");
+  Serial.println(steps[4]);
 
 
-
-
-
-  max_step = ABS_STEP_NUMBERS[3];
+  max_step = ABS_STEP_NUMBERS[4];
   Serial.println("Max value in the STEP number array is: ");
-  Serial.println(ABS_STEP_NUMBERS[3]);
-  int a = 0, b = 0, c = 0, d = 0;
-  int art1 = 0, art3 = 0, art4 = 0, art5 = 0;
+  Serial.println(ABS_STEP_NUMBERS[4]);
+  int a = 0, b = 0, c = 0, d = 0, e = 0;
+  int art1 = 0, art3 = 0, art4 = 0, art5 = 0, art6 = 0;
 
   digitalWrite(step_a, LOW);
   digitalWrite(step_b, LOW);
   digitalWrite(step_c, LOW);
   digitalWrite(step_d, LOW);
+  digitalWrite(step_e, LOW);
 
   for (int i = 0; i <= max_step; i++) {
+    //-----------------------------------------------------------------------------------------ART1
     if ((abs(a) <= abs(steps[0]) && (art1 == 0) && (steps[0] != 0))) {
       if (steps[0] >= 0) {
         a++;
@@ -669,7 +683,7 @@ void parallel_motors(int array[], int steps[],
       art1 = 1;
     }
 
-
+    //-----------------------------------------------------------------------------------------ART3
     if ((abs(b) <= abs(steps[1]) && (art3 == 0) && (steps[1] != 0))) {
       if (steps[1] >= 0) {
         b++;
@@ -685,7 +699,7 @@ void parallel_motors(int array[], int steps[],
     if (abs(b) == abs(steps[1])) {
       art3 = 1;
     }
-
+    //-----------------------------------------------------------------------------------------ART4
     if ((abs(c) <= abs(steps[2])) && (art4 == 0) && (steps[2] != 0)) {
       if (steps[2] >= 0) {
         c++;
@@ -700,6 +714,13 @@ void parallel_motors(int array[], int steps[],
 
     if (abs(c) == abs(steps[2])) {
       art4 = 1;
+    }
+    //-----------------------------------------------------------------------------------------ART5
+
+    if (steps[3] >= 0) {
+      digitalWrite(dir_d, HIGH);
+    } else {
+      digitalWrite(dir_d, LOW);
     }
 
     if ((abs(d) <= abs(steps[3]) && (art5 == 0) && (steps[3] != 0))) {
@@ -719,8 +740,45 @@ void parallel_motors(int array[], int steps[],
     if (abs(d) == abs(steps[3])) {
       art5 = 1;
     }
+    //-----------------------------------------------------------------------------------------ART 6 - ROTATION OF THE CLAW COLUMN
+
+    if (steps[4] >= 0) {
+      digitalWrite(dir_d, HIGH);
+      digitalWrite(dir_e, LOW);
+    } else {
+      digitalWrite(dir_d, LOW);
+      digitalWrite(dir_e, HIGH);
+    }
+
+    if ((abs(e) <= abs(steps[4]) && (art6 == 0) && (steps[4] != 0))) {
+      if (digitalRead(SW_Art56) == 0) {
+        if (steps[4] >= 0) {
+          e++;
+        } else {
+          e--;
+        }  ////////////
+
+        digitalWrite(step_d, HIGH);
+        delayMicroseconds(100);
+        digitalWrite(step_d, LOW);
+        delayMicroseconds(350);
+
+        digitalWrite(step_e, HIGH);
+        delayMicroseconds(100);
+        digitalWrite(step_e, LOW);
+        delayMicroseconds(350);
+      }
+    }
+
+    if (abs(e) == abs(steps[4])) {
+
+      art6 = 1;
+    }
   }
 
+  //-----------------------------------------------------------------------------------------END OF ARTICULATIONS
+
+  //-----------------------------------------PRINTING THE RESULTS--------------------------------------------------
   Serial.println("-------------BEFORE THE SUM-------------------------------------------------");
   Serial.println("art1_steps_count: ");
   Serial.println(art1_steps_count);
@@ -732,12 +790,14 @@ void parallel_motors(int array[], int steps[],
   Serial.println(art5_steps_count);
   Serial.println("art6_steps_count: ");
   Serial.println(art6_steps_count);
+
   Serial.println("-----------------------------------------------------------------------------");
 
   art1_steps_count = art1_steps_count + a;
   art3_steps_count = art3_steps_count + b;
   art4_steps_count = art4_steps_count + c;
   art5_steps_count = art5_steps_count + d;
+  art6_steps_count = art6_steps_count + e;
 
   Serial.println("-------------AFTER THE SUM---------------------------------------------------");
   Serial.println("art1_steps_count: ");
@@ -761,8 +821,10 @@ void parallel_motors(int array[], int steps[],
   Serial.println(c);
   Serial.print("d: ");
   Serial.println(d);
+  Serial.print("e: ");
+  Serial.println(e);
 
-  if (art1 == 1 && art3 == 1 && art4 == 1 && art5 == 1) {
+  if (art1 == 1 && art3 == 1 && art4 == 1 && art5 == 1 && art6 == 1) {
     Serial.println("MISSION COMPLETE");
   }
 }
@@ -806,14 +868,17 @@ void claw_game() {
 void returnHOME(const int step_a, const int dir_a,
                 const int step_b, const int dir_b,
                 const int step_c, const int dir_c,
-                const int step_d, const int dir_d) {
+                const int step_d, const int dir_d,
+                const int step_e, const int dir_e) {
 
-  int a = 0, b = 0, c = 0, d = 0;
+  int a = 0, b = 0, c = 0, d = 0, e = 0;
 
   digitalWrite(step_a, LOW);
   digitalWrite(step_b, LOW);
   digitalWrite(step_c, LOW);
   digitalWrite(step_d, LOW);
+  digitalWrite(step_e, LOW);
+
   Serial.println("Initial position of returnHOME: ");
   Serial.println("1st art steps is: ");
   Serial.println(art1_steps_count);
@@ -823,6 +888,8 @@ void returnHOME(const int step_a, const int dir_a,
   Serial.println(art4_steps_count);
   Serial.println("5th art steps is: ");
   Serial.println(art5_steps_count);
+  Serial.println("6th art steps is: ");
+  Serial.println(art6_steps_count);
   /////////////////////////////////////////////////////////ART1
   if (art1_steps_count >= 0) {
     digitalWrite(dir_a, LOW);
@@ -924,14 +991,52 @@ void returnHOME(const int step_a, const int dir_a,
       delayMicroseconds(350);
     }
   }
+  /////////////////////////////////////////////////////////ART6
+
+  if (art6_steps_count >= 0) {
+    digitalWrite(dir_d, LOW);
+    digitalWrite(dir_e, HIGH);
+    for (int i = 0; i < art6_steps_count; i++) {
+      if (art6_steps_count == 0) {
+        break;
+      }
+      e--;
+      digitalWrite(step_d, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_d, LOW);
+      delayMicroseconds(350);
+      digitalWrite(step_e, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_e, LOW);
+      delayMicroseconds(350);
+    }
+  }
+  if (art5_steps_count < 0) {
+    digitalWrite(dir_d, HIGH);
+    digitalWrite(dir_e, LOW);
+    for (int i = 0; i > art6_steps_count; i--) {
+      e++;
+      digitalWrite(step_d, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_d, LOW);
+      delayMicroseconds(350);
+      digitalWrite(step_e, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(step_e, LOW);
+      delayMicroseconds(350);
+    }
+  }
+
+
 
   art1_steps_count = art1_steps_count + a;
   art3_steps_count = art3_steps_count + b;
   art4_steps_count = art4_steps_count + c;
   art5_steps_count = art5_steps_count + d;
+  art6_steps_count = art6_steps_count + e;
 
 
-  Serial.println("FINAL HOME POSITION (should be zero) : ");
+  Serial.println("FINAL HOME POSITION - All of them are zero : ");
   Serial.println("1st art steps is: ");
   Serial.println(art1_steps_count);
   Serial.println("3rd art steps is: ");
@@ -940,6 +1045,8 @@ void returnHOME(const int step_a, const int dir_a,
   Serial.println(art4_steps_count);
   Serial.println("5th art steps is: ");
   Serial.println(art5_steps_count);
+  Serial.println("6th art steps is: ");
+  Serial.println(art6_steps_count);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
