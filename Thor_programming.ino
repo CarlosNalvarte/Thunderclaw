@@ -116,7 +116,7 @@ void loop() {
     auto read = input.length();
     while (aval > ++read)
       Serial.read();
-    CLAW.write(45);
+    //CLAW.write(45);
     auto incomingByte = input.toInt();
 
     switch (incomingByte) {
@@ -135,9 +135,9 @@ void loop() {
         home1Motor(23, 31, 49);  // delay(2500);//this works for articulation 4 (base of the head)
         //for all 3 'home' positions, only one motor is used to perform the movement
         //now I have to do a separate function for the head as it uses a endstop switch to set its initial position
-        home2motors_head(25, 33, 47);          // makes contact with the switch and then returns back the base of the claw to the middle of the head
-        home_claw_column(25, 33, 27, 35, 47);  //rotates the base of the claw a certain number of degrees based on the number of steps
-                                               //needs hard testing to be accurate and a base position to start with
+        home2motors_head(25, 33, 47);         // makes contact with the switch and then returns back the base of the claw to the middle of the head
+        claw_column_CCW(25, 33, 27, 35, 47);  //rotates the base of the claw a certain number of degrees based on the number of steps
+                                              //needs hard testing to be accurate and a base position to start with
 
 
 
@@ -225,7 +225,7 @@ void loop() {
         Serial.println("tests");
 
 
-
+        /*
         
         home1Motor(28, 36, 42);  //art 1
 
@@ -234,8 +234,13 @@ void loop() {
         home1Motor(23, 31, 49);  //art 4
 
         home2motors_head(25, 33, 47);  //art56 left to right movement
-
-        home_claw_column(25, 33, 27, 35, 47);  // rotation of the claw column
+*/
+        claw_column_CCW(25, 33, 27, 35, 47);  // rotation of the claw column
+        claw_column_CW(25, 33, 27, 35, 47);   // rotation of the claw column
+        delay(1000);
+        claw_column_CW(25, 33, 27, 35, 47);   // rotation of the claw column
+        claw_column_CCW(25, 33, 27, 35, 47);  // rotation of the claw column
+        /*
         art1_steps_count=0;
         art3_steps_count=0;
         art4_steps_count=0;
@@ -272,7 +277,7 @@ void loop() {
         //Serial.println("I just moved it to pos 2");
 
         // HOME_MODE();
-        // claw_game();
+        // claw_game();*/
         break;
 
       case 5:
@@ -368,9 +373,8 @@ void home1Motor(const int STEP, const int DIR, const int OPTO) {
 
   Serial.println("Next sequence is about to start");
 }
-int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw support from left to right until it reaches the switch
-                                                 //after that, it returns the claw column back to the middle position based on the number of steps
-                                                 //set at the for loop
+int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw column from left to right until it reaches the switch
+                                                 //after that, it returns the claw column back to the middle position
 {
   Serial.println("the motor is just about to rotate CW");
   delay(500);
@@ -420,11 +424,13 @@ int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw support f
 }
 
 
-int home_claw_column(int STEP1, int DIR1, int STEP2, int DIR2, int SW) {
-  Serial.println("the claw is about to rotate on its own axis");
+int claw_column_CCW(int STEP1, int DIR1, int STEP2, int DIR2, int SW) {  //rotation to the left on its own axis CCW
+  Serial.println("the claw is about to rotate left on its own axis");
   //delay(1000);
   digitalWrite(DIR1, LOW);
   digitalWrite(DIR2, HIGH);
+  digitalWrite(STEP1, LOW);
+  digitalWrite(STEP2, LOW);
   for (int i = 0; i < 6400; i++) {
 
     if (digitalRead(SW) == HIGH) {
@@ -439,12 +445,12 @@ int home_claw_column(int STEP1, int DIR1, int STEP2, int DIR2, int SW) {
       digitalWrite(STEP1, HIGH);
       delayMicroseconds(100);
       digitalWrite(STEP1, LOW);
-      delayMicroseconds(550);
+      delayMicroseconds(350);
 
       digitalWrite(STEP2, HIGH);
       delayMicroseconds(100);
       digitalWrite(STEP2, LOW);
-      delayMicroseconds(550);
+      delayMicroseconds(350);
     }
   }
   Serial.println("the claw has rotated");
@@ -462,13 +468,61 @@ int home_claw_column(int STEP1, int DIR1, int STEP2, int DIR2, int SW) {
   Serial.println("-------------------------------------------------------------------------");
 }
 
+
+int claw_column_CW(int STEP1, int DIR1, int STEP2, int DIR2, int SW) {  //rotation to the right on its own axis CW
+  Serial.println("the claw is about to rotate right on its own axis");
+  //delay(1000);
+  digitalWrite(DIR1, HIGH);  //original CCW had DIR1 AS LOW AND DIR2 AS HIGH
+  digitalWrite(DIR2, LOW);   //This is done to change the direction of movement of the claw column
+  digitalWrite(STEP1, LOW);
+  digitalWrite(STEP2, LOW);
+
+  for (int i = 0; i < 6400; i++) {
+
+    if (digitalRead(SW) == HIGH) {
+      digitalWrite(DIR1, LOW);
+      digitalWrite(DIR2, LOW);
+      Serial.println("somehow I pressed the switch");
+      break;
+    }
+
+    if (digitalRead(SW) == LOW) {
+      art6_steps_count--;
+      digitalWrite(STEP1, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(STEP1, LOW);
+      delayMicroseconds(350);
+
+      digitalWrite(STEP2, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(STEP2, LOW);
+      delayMicroseconds(350);
+    }
+  }
+  Serial.println("the claw has rotated");
+  Serial.println("-------------------------------------------------------------------------");
+  Serial.println("art1_steps_count: ");
+  Serial.println(art1_steps_count);
+  Serial.println("art3_steps_count: ");
+  Serial.println(art3_steps_count);
+  Serial.println("art4_steps_count: ");
+  Serial.println(art4_steps_count);
+  Serial.println("art5_steps_count: ");
+  Serial.println(art5_steps_count);
+  Serial.println("art6_steps_count: ");
+  Serial.println(art6_steps_count);
+  Serial.println("-------------------------------------------------------------------------");
+}
+
+
 void HOME_MODE() {  //gathers all the home position commands into one function
 
-  home1Motor(28, 36, 42);                //art 1
-  home1Motor(22, 30, 48);                //art 3
-  home1Motor(23, 31, 49);                //art 4
-  home2motors_head(25, 33, 47);          //art56 left to right movement
-  home_claw_column(25, 33, 27, 35, 47);  // rotation of the claw column
+  home1Motor(28, 36, 42);               //art 1
+  home1Motor(22, 30, 48);               //art 3
+  home1Motor(23, 31, 49);               //art 4
+  home2motors_head(25, 33, 47);         //art56 left to right movement
+  claw_column_CCW(25, 33, 27, 35, 47);  // rotation of the claw column to the left
+  claw_column_CW(25, 33, 27, 35, 47);   // rotation of the claw column to the right
 }
 
 void moveit(int amount_of_steps_1, int amount_of_steps_2, int amount_of_steps_3, int amount_of_steps_4) {
@@ -571,10 +625,6 @@ void parallel_motors(int array[], int steps[],
   Serial.println(" ");
 
   Serial.println("///////////////////////////////////////// ");
-
-
-
-
 
 
   Serial.println("STEPS PER MOTOR - ENTERED WITH MOVEIT FN");
