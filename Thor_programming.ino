@@ -152,13 +152,32 @@ void loop() {
         break;
 
       case 3:  //MANUAL MODE
-        Serial.println("MANUAL MODE");
-        Serial.println("2003 Mazda Protege5 Standard/MANUAL transmission. Not on sale anymore");
+        Serial.println("WELCOME TO MANUAL MODE");
+        Serial.println("PRESS ONE OF THE FOLLOWING OPTIONS: ");
+
+        Serial.println("11 - Articulation 1 moves to the right ");
+        Serial.println("12 - Articulation 1 moves to the left ");
+
+        Serial.println("31 - Articulation 3 moves to the right ");
+        Serial.println("32 - Articulation 3 moves to the left ");
+
+        Serial.println("41 - Articulation 4 moves to the right ");
+        Serial.println("42 - Articulation 4 moves to the left ");
+
+        Serial.println("51 - Articulation 5 moves to the right ");
+        Serial.println("52 - Articulation 5 moves to the left ");
+
+        Serial.println("61 - Articulation 6 moves CW ");
+        Serial.println("62 - Articulation 6 moves CCW ");
+
+        Serial.println("71 - Control the Claw! ");
+
+        Serial.println("4 - Return to MAIN MENU");
         while (true) {
 
           auto aval2 = Serial.available();
-          //Serial.println("I'm waiting");
           if (aval2 > 0) {
+
             auto input2 = Serial.readStringUntil('\r');
             auto read2 = input2.length();
             while (aval2 > ++read2)
@@ -168,65 +187,154 @@ void loop() {
 
             switch (incomingByte2) {
 
-              case 1:
-                Serial.println("he he boi");
+              case 11:
+                Serial.println("Articulation 1 moving to the right");
+                manual1MotorHIGH(28, 36, 2000);
                 break;
-              case 2:
-                Serial.println("You got it");
+              case 12:
+                Serial.println("Articulation 1 moving to the left");
+                manual1MotorLOW(28, 36, 2000);
                 break;
-              case 3:
-                Serial.println("No");
+
+              case 31:
+                Serial.println("Articulation 3 moving to the right");
+                manual1MotorHIGH(22, 30, 2000);
                 break;
+
+              case 32:
+                Serial.println("Articulation 3 moving to the left");
+                manual1MotorLOW(22, 30, 2000);
+                break;
+
+              case 41:
+                Serial.println("Articulation 4 moving to the left");
+                manual1MotorHIGH(23, 31, 2000);
+                break;
+
+              case 42:
+                Serial.println("Articulation 4 moving to the right");
+                manual1MotorLOW(23, 31, 2000);
+                break;
+
+              case 51:
+                Serial.println("Articulation 5 moving to the left");
+                manual1MotorLOW(25, 33, 500);
+                break;
+
+              case 52:
+                Serial.println("Articulation 5 moving to the right");
+                manual1MotorHIGH(25, 33, 500);
+                break;
+
+              case 61:
+                Serial.println("Articulation 6 rotating clockwise");
+                manual2MotorHIGH(25, 33, 27, 35, 1000);
+                break;
+
+              case 62:
+                Serial.println("Articulation 6 rotation counterclockwise");
+                manual2MotorLOW(25, 33, 27, 35, 1000);
+                break;
+              case 71:
+                Serial.println("Thanks for using the THUNDERCLAW");
+                Serial.println("Type values between 0 and 90");
+                Serial.println("When at 90, it's fully OPEN and at 0 it's fully CLOSED");
+                Serial.println("If you enter a value beyond or below the limits, you will go back to MANUAL MODE");
+                manualCLAW(90);
+                break;
+
               case 4:
-                Serial.println("EXIT KEYBIND PRESSED");
+                Serial.println("Exiting to main menu...");
                 break;
 
               default:
-                //This has to be redefined when the keybind map is defined (1 keybind per sense of movement per articulation)
-                //In total: 2 keybinds per articulation (include limits/range of movement ?)
 
                 Serial.println("Wrong Input. This is a friendly reminder for the available options:");
-                Serial.println("1 - UP ");
-                Serial.println("2 - DOWN ");
-                Serial.println("3 - SOMETHING ");
+                Serial.println("11 - Articulation 1 moves to the right ");
+                Serial.println("12 - Articulation 1 moves to the left ");
+
+                Serial.println("31 - Articulation 3 moves to the right ");
+                Serial.println("32 - Articulation 3 moves to the left ");
+
+                Serial.println("41 - Articulation 4 moves to the right ");
+                Serial.println("42 - Articulation 4 moves to the left ");
+
+                Serial.println("51 - Articulation 5 moves to the right ");
+                Serial.println("52 - Articulation 5 moves to the left ");
+
+                Serial.println("61 - Articulation 6 moves CW ");
+                Serial.println("62 - Articulation 6 moves CCW ");
+
+                Serial.println("71 - Control the Claw! ");
+
+                Serial.println("4 - Return to MAIN MENU");
                 break;
             }
             //            Serial.println(incomingByte2);
-            if (incomingByte2 == 4) {
-              Serial.println("Welcome back to the main menu. Here's the available options: ");
+            if (incomingByte2 == 4) {  //exit keybind
+              Serial.println("Welcome back to the main menu. These are the available options: ");
               Serial.println("1 - HOME");
               Serial.println("2 - AUTO");
               Serial.println("3 - MANUAL");
               break;
             }
-            //break;
           }
         }
-        // HOME_MODE();  //set the robotic arm at home position first so I can count the steps going left or right (DIR pin)
-        /*
-        int a_home_value = 0;
-
-        int a_CW = manual1MotorCW(28, 36);  //articulation 1 base CW
-        a_home_value = a_home_value + a_CW;
-
-        int a_CCW = manual1MotorCCW(28, 36);  //articulation 1 base CCW
-        a_home_value = a_home_value + a_CCW;
-
-*/
-        //int b=manual1Motor(22,30); //articulation 3 open belt
-        //int c=manual1Motor(23,31); //articulation 4 head base
-
-        //still need to work on how to manually control articulation 56 for both type of movements Nov 22nd 2:29PM
-
         break;
 
       case 4:
 
         Serial.println("tests");
+        //HOME_MODE();
 
+       moveit(0, 0, 0, 0, 6400);
+       returnHOME(28, 36, 22, 30, 23, 31, 25, 33, 27, 35);
+       
+        moveit(0, 0, 0, 0, -6400);
+        returnHOME(28, 36, 22, 30, 23, 31, 25, 33, 27, 35);
+        
+          /*
+        CLAW.write(90);
+         moveit(-1000, 6000,1000, 1500, 0);
+         delay(500);
+         CLAW.write(45);
+         delay(500);
+
+         moveit(-1000, -8000, 1000, -500, 0);
+         delay(1000);
+         CLAW.write(90);
+*/
+
+
+          // moveit(1600, 4283, -6000, -1500, 2000);
+
+
+          /*
+        home1Motor(28, 36, 42);        //art 1
+        home1Motor(22, 30, 48);        //art 3
+        home1Motor(23, 31, 49);        //art 4
+        home2motors_head(25, 33, 47);  //art 5
+        claw_column_CCW(25, 33, 27, 35, 47);
+        claw_column_CW(25, 33, 27, 35, 47);
+        claw_game();
+        /*
+home1Motor(28, 36, 42);  //art 1
+home1Motor(22, 30, 48);  //art 3
+home1Motor(23, 31, 49);  //art 4
+home2motors_head(25, 33, 47); //art 5
+
+//home2motors_head(27, 35, 47); //art 5
+
+claw_column_CCW(25, 33, 27, 35, 47);
+delay(2500);
+claw_column_CW(25, 33, 27, 35, 47);
 
         /*
-        
+                art1_steps_count=0;
+        art3_steps_count=0;
+        art4_steps_count=0;
+        art5_steps_count=0;
+        art6_steps_count=0;
         home1Motor(28, 36, 42);  //art 1
 
         home1Motor(22, 30, 48);  //art 3
@@ -247,18 +355,16 @@ void loop() {
         delay(2000);
 */
 
+          //moveit(-1300, -2200, 1500, 2000, -4000);
 
+          // claw_game();
+          // moveit(1600, 4283, 6000, -3600, 5000);
+          //delay(1000);
+          // returnHOME(28, 36, 22, 30, 23, 31, 25, 33, 27, 35);
 
+          //moveit(2500, 2000, 1000, -2000, 1000);
 
-
-        //moveit(-1300, -2200, 1500, 2000, -4000);
-        moveit(12800, 0, 0, 0, 0);
-        delay(1000);
-        returnHOME(28, 36, 22, 30, 23, 31, 25, 33, 27, 35);
-
-        //moveit(2500, 2000, 1000, -2000, 1000);
-
-        /*
+          /*
         delay(2000);
         returnHOME(28, 36, 22, 30, 23, 31, 25, 33);
         delay(2000);
@@ -268,24 +374,24 @@ void loop() {
 */
 
 
-        //claw_game();
+          //claw_game();
 
 
-        // returnHOME(28, 36, 22, 30, 23, 31, 25, 33);
-        // delay(2000);
+          // returnHOME(28, 36, 22, 30, 23, 31, 25, 33);
+          // delay(2000);
 
 
 
 
 
-        //Serial.println("I just moved it to pos 1");
-        //delay(1000);
-        //moveit(-2500, -2000, -1000, -1000);
-        //Serial.println("I just moved it to pos 2");
+          //Serial.println("I just moved it to pos 1");
+          //delay(1000);
+          //moveit(-2500, -2000, -1000, -1000);
+          //Serial.println("I just moved it to pos 2");
 
-        // HOME_MODE();
-        // claw_game();*/
-        break;
+          // HOME_MODE();
+          // claw_game();*/
+          break;
 
       case 5:
         //Claw_pos can only go from 0 to 90. Even better from 5 to 85 just to avoid friction or forceful movements
@@ -383,15 +489,14 @@ void home1Motor(const int STEP, const int DIR, const int OPTO) {
 int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw column from left to right until it reaches the switch
                                                  //after that, it returns the claw column back to the middle position
 {
-  Serial.println("the motor is just about to rotate CW");
-  delay(500);
-  digitalWrite(DIR, LOW);            //MOTOR GOES CCW
+  delay(100);
+  digitalWrite(DIR, HIGH);           //MOTOR GOES CCW
   for (int i = 0; i < 10000; i++) {  //1035 was gud for a full rotation
 
     if (digitalRead(SW) == HIGH) {
       Serial.println("The switch was found!!");  //as soon as the switch is pressed by the claw column, the claw goes back to the mid section of the robotic arm head
 
-      digitalWrite(DIR, HIGH);
+      digitalWrite(DIR, LOW);
       break;
     }
     if (STEP == 25) { art5_steps_count--; }
@@ -402,7 +507,7 @@ int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw column fr
 
     //delay(1); //this variable could be controlled
   }
-  digitalWrite(DIR, HIGH);          //MOTOR GOES CCW
+  digitalWrite(DIR, LOW);           //MOTOR GOES CCW
   for (int i = 0; i < 3200; i++) {  //1035 was gud for a full rotation
     //I think I was using full step mode
     if (STEP == 25) { art5_steps_count++; }
@@ -410,10 +515,6 @@ int home2motors_head(int STEP, int DIR, int SW)  //this moves the claw column fr
     delayMicroseconds(100);   //these two delays could be controlled. Right now D=0.25 and period is 1ms. f=1khz
     digitalWrite(STEP, LOW);  //including the dead time of 10ms, 1ms +10ms is 11ms so period is 11ms. f=90.9
     delayMicroseconds(350);
-    //int inc;
-    // inc++;
-    //Serial.println(inc);
-    //delay(1); //this variable could be controlled
   }
   Serial.println("the base of the claw has returned to the middle");
   Serial.println("-------------------------------------------------------------------------");
@@ -524,12 +625,12 @@ int claw_column_CW(int STEP1, int DIR1, int STEP2, int DIR2, int SW) {  //rotati
 
 void HOME_MODE() {  //gathers all the home position commands into one function
 
-  home1Motor(28, 36, 42);               //art 1
-  home1Motor(22, 30, 48);               //art 3
-  home1Motor(23, 31, 49);               //art 4
-  home2motors_head(25, 33, 47);         //art56 left to right movement
-  claw_column_CCW(25, 33, 27, 35, 47);  // rotation of the claw column to the left
-  claw_column_CW(25, 33, 27, 35, 47);   // rotation of the claw column to the right
+  home1Motor(28, 36, 42);        //art 1
+  home1Motor(22, 30, 48);        //art 3
+  home1Motor(23, 31, 49);        //art 4
+  home2motors_head(25, 33, 47);  //art56 left to right movement
+  //claw_column_CCW(25, 33, 27, 35, 47);  // rotation of the claw column to the left
+  //claw_column_CW(25, 33, 27, 35, 47);   // rotation of the claw column to the right
 }
 
 void moveit(int amount_of_steps_1, int amount_of_steps_2, int amount_of_steps_3, int amount_of_steps_4, int amount_of_steps_5) {
@@ -1011,7 +1112,7 @@ void returnHOME(const int step_a, const int dir_a,
       delayMicroseconds(350);
     }
   }
-  if (art5_steps_count < 0) {
+  if (art6_steps_count < 0) {
     digitalWrite(dir_d, HIGH);
     digitalWrite(dir_e, LOW);
     for (int i = 0; i > art6_steps_count; i--) {
@@ -1026,8 +1127,6 @@ void returnHOME(const int step_a, const int dir_a,
       delayMicroseconds(350);
     }
   }
-
-
 
   art1_steps_count = art1_steps_count + a;
   art3_steps_count = art3_steps_count + b;
@@ -1050,29 +1149,314 @@ void returnHOME(const int step_a, const int dir_a,
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-//these two functions have NOT been implemented yet  manual1MotorCW and manual1MotorCCW
-int manual1MotorCW(int STEP, int DIR) {
+//MANUAL FUNCTIONS
+//manual1Motor HIGH/LOW is for the articulations 1,3,4 and 5
+//manual2Motor HIGH/LOW is for the articulation 6 (rotation of the claw column)
+//manualCLAW is for the CLAW - open/close
+void manual1MotorHIGH(int STEP, int DIR, int amount_of_steps) {
+
+
+  Serial.println("-------------BEFORE THE SUM-------------------------------------------------");
+  Serial.println("art1_steps_count: ");
+  Serial.println(art1_steps_count);
+  Serial.println("art3_steps_count: ");
+  Serial.println(art3_steps_count);
+  Serial.println("art4_steps_count: ");
+  Serial.println(art4_steps_count);
+  Serial.println("art5_steps_count: ");
+  Serial.println(art5_steps_count);
+  Serial.println("art6_steps_count: ");
+  Serial.println(art6_steps_count);
+
+  Serial.println("-----------------------------------------------------------------------------");
+
+
+  int manual_art1_steps_count = art1_steps_count + amount_of_steps;  //art 1 pin 28 for step
+  int manual_art3_steps_count = art3_steps_count + amount_of_steps;  //art 3 pin 22 for step
+  int manual_art4_steps_count = art4_steps_count + amount_of_steps;  //art 4 pin 23 for step
+  int manual_art5_steps_count = art5_steps_count + amount_of_steps;  //art 5 pin 25 for step
+
+
+  if (STEP == 28) {
+    if (manual_art1_steps_count > 16000) {
+      Serial.println("Articulation 1 cannot rotate beyond its current position");
+      return;
+    } else {
+      art1_steps_count = art1_steps_count + amount_of_steps;
+    }
+  }
+
+  if (STEP == 22) {
+    if (manual_art3_steps_count > 16000) {
+      Serial.println("Articulation 3 cannot rotate beyond its current position");
+      return;
+    } else {
+      art3_steps_count = art3_steps_count + amount_of_steps;
+    }
+  }
+
+  if (STEP == 23) {
+    if (manual_art4_steps_count > 16000) {
+      Serial.println("Articulation 4 cannot rotate beyond its current position");
+      return;
+    } else {
+      art4_steps_count = art4_steps_count + amount_of_steps;
+    }
+  }
+
+  if (STEP == 25) {
+    if (manual_art5_steps_count > 16000) {
+      Serial.println("Articulation 5 cannot rotate beyond its current position");
+      return;
+    } else {
+      art5_steps_count = art5_steps_count + amount_of_steps;
+    }
+  }
+
+  digitalWrite(STEP, LOW);
   digitalWrite(DIR, HIGH);
-  int count_1M = 0;
-  for (int i = 0; i > 1000; i++) {
+
+  for (int i = 0; i < amount_of_steps; i++) {
     digitalWrite(STEP, HIGH);
     delayMicroseconds(100);
     digitalWrite(STEP, LOW);
-    delayMicroseconds(350);
-    count_1M + 100;
+    delayMicroseconds(400);
   }
-  return count_1M;
+
+  Serial.println("-------------AFTER THE SUM-------------------------------------------------");
+  Serial.println("art1_steps_count: ");
+  Serial.println(art1_steps_count);
+  Serial.println("art3_steps_count: ");
+  Serial.println(art3_steps_count);
+  Serial.println("art4_steps_count: ");
+  Serial.println(art4_steps_count);
+  Serial.println("art5_steps_count: ");
+  Serial.println(art5_steps_count);
+  Serial.println("art6_steps_count: ");
+  Serial.println(art6_steps_count);
+
+  Serial.println("-----------------------------------------------------------------------------");
 }
 
-int manual1MotorCCW(int STEP, int DIR) {
+void manual1MotorLOW(int STEP, int DIR, int amount_of_steps) {
+
+
+
+  Serial.println("-------------BEFORE THE SUM-------------------------------------------------");
+  Serial.println("art1_steps_count: ");
+  Serial.println(art1_steps_count);
+  Serial.println("art3_steps_count: ");
+  Serial.println(art3_steps_count);
+  Serial.println("art4_steps_count: ");
+  Serial.println(art4_steps_count);
+  Serial.println("art5_steps_count: ");
+  Serial.println(art5_steps_count);
+  Serial.println("art6_steps_count: ");
+  Serial.println(art6_steps_count);
+
+  Serial.println("-----------------------------------------------------------------------------");
+
+
+  int manual_art1_steps_count = art1_steps_count - amount_of_steps;  //art 1 pin 28 for step
+  int manual_art3_steps_count = art3_steps_count - amount_of_steps;  //art 3 pin 22 for step
+  int manual_art4_steps_count = art4_steps_count - amount_of_steps;  //art 4 pin 23 for step
+  int manual_art5_steps_count = art5_steps_count - amount_of_steps;  //art 5 pin 25 for step
+
+
+  if (STEP == 28) {
+    if (manual_art1_steps_count < -16000) {
+      Serial.println("Articulation 1 cannot rotate beyond its current position");
+      return;
+    } else {
+      art1_steps_count = art1_steps_count - amount_of_steps;
+    }
+  }
+
+  if (STEP == 22) {
+    if (manual_art3_steps_count < -16000) {
+      Serial.println("Articulation 3 cannot rotate beyond its current position");
+      return;
+    } else {
+      art3_steps_count = art3_steps_count - amount_of_steps;
+    }
+  }
+
+  if (STEP == 23) {
+    if (manual_art4_steps_count < -16000) {
+      Serial.println("Articulation 4 cannot rotate beyond its current position");
+      return;
+    } else {
+      art4_steps_count = art4_steps_count - amount_of_steps;
+    }
+  }
+
+  if (STEP == 25) {
+    if (manual_art5_steps_count < -16000) {
+      Serial.println("Articulation 5 cannot rotate beyond its current position");
+      return;
+    } else {
+      art5_steps_count = art5_steps_count - amount_of_steps;
+    }
+  }
+
+  digitalWrite(STEP, LOW);
   digitalWrite(DIR, LOW);
-  int count_1M = 0;
-  for (int i = 0; i > 1000; i++) {
+
+  for (int i = 0; i < amount_of_steps; i++) {
     digitalWrite(STEP, HIGH);
     delayMicroseconds(100);
     digitalWrite(STEP, LOW);
-    delayMicroseconds(350);
-    count_1M - 100;
+    delayMicroseconds(400);
   }
-  return count_1M;
+
+  Serial.println("-------------AFTER THE SUM-------------------------------------------------");
+  Serial.println("art1_steps_count: ");
+  Serial.println(art1_steps_count);
+  Serial.println("art3_steps_count: ");
+  Serial.println(art3_steps_count);
+  Serial.println("art4_steps_count: ");
+  Serial.println(art4_steps_count);
+  Serial.println("art5_steps_count: ");
+  Serial.println(art5_steps_count);
+  Serial.println("art6_steps_count: ");
+  Serial.println(art6_steps_count);
+  Serial.println("-----------------------------------------------------------------------------");
+}
+
+
+void manual2MotorHIGH(int STEP1, int DIR1, int STEP2, int DIR2, int amount_of_steps) {
+
+
+  Serial.println("-------------BEFORE THE SUM--------------------------------------------------");
+  Serial.println("art6_steps_count: ");
+  Serial.println(art6_steps_count);
+  Serial.println("-----------------------------------------------------------------------------");
+
+
+  int manual_art6_steps_count = art6_steps_count + amount_of_steps;  //art 6 pin 25 and 27 for step
+
+
+  if (manual_art6_steps_count > 7000) {
+    Serial.println("The claw cannot rotate beyond its current position");
+    return;
+  } else {
+    art6_steps_count = art6_steps_count + amount_of_steps;
+  }
+
+
+
+  digitalWrite(STEP1, LOW);
+  digitalWrite(STEP2, LOW);
+
+  digitalWrite(DIR1, HIGH);
+  digitalWrite(DIR2, LOW);
+
+
+  for (int i = 0; i < amount_of_steps; i++) {
+    digitalWrite(STEP1, HIGH);
+    delayMicroseconds(100);
+    digitalWrite(STEP1, LOW);
+    delayMicroseconds(400);
+
+    digitalWrite(STEP2, HIGH);
+    delayMicroseconds(100);
+    digitalWrite(STEP2, LOW);
+    delayMicroseconds(400);
+  }
+
+  Serial.println("-------------AFTER THE SUM-------------------------------------------------");
+  Serial.println("art6_steps_count: ");
+  Serial.println(art6_steps_count);
+  Serial.println("-----------------------------------------------------------------------------");
+}
+
+void manual2MotorLOW(int STEP1, int DIR1, int STEP2, int DIR2, int amount_of_steps) {
+
+
+  Serial.println("-------------BEFORE THE SUM--------------------------------------------------");
+  Serial.println("art6_steps_count: ");
+  Serial.println(art6_steps_count);
+  Serial.println("-----------------------------------------------------------------------------");
+
+
+  int manual_art6_steps_count = art6_steps_count - amount_of_steps;  //art 6 pin 25 and 27 for step
+
+
+  if (manual_art6_steps_count < -7000) {
+    Serial.println("The claw cannot rotate beyond its current position");
+    return;
+  } else {
+    art6_steps_count = art6_steps_count - amount_of_steps;
+  }
+
+
+
+  digitalWrite(STEP1, LOW);
+  digitalWrite(STEP2, LOW);
+
+  digitalWrite(DIR1, LOW);
+  digitalWrite(DIR2, HIGH);
+
+
+  for (int i = 0; i < amount_of_steps; i++) {
+    digitalWrite(STEP1, HIGH);
+    delayMicroseconds(100);
+    digitalWrite(STEP1, LOW);
+    delayMicroseconds(400);
+
+    digitalWrite(STEP2, HIGH);
+    delayMicroseconds(100);
+    digitalWrite(STEP2, LOW);
+    delayMicroseconds(400);
+  }
+
+  Serial.println("-------------AFTER THE SUM-------------------------------------------------");
+  Serial.println("art6_steps_count: ");
+  Serial.println(art6_steps_count);
+  Serial.println("-----------------------------------------------------------------------------");
+}
+
+
+void manualCLAW(int angle) {
+  CLAW.write(angle);
+  while (true) {
+
+    auto avalCLAW = Serial.available();
+    if (avalCLAW > 0) {
+
+      auto inputCLAW = Serial.readStringUntil('\r');
+      auto readCLAW = inputCLAW.length();
+      while (avalCLAW > ++readCLAW)
+        Serial.read();
+      auto incomingByteCLAW = inputCLAW.toInt();
+      if ((incomingByteCLAW > 90) || (incomingByteCLAW < 0)) {
+        break;
+      }
+      CLAW.write(incomingByteCLAW);
+      Serial.print("The claw moved to: ");
+      Serial.print(incomingByteCLAW);
+      Serial.println(" degrees");
+    }
+  }
+  Serial.println("Thanks for playing with the THUNDERCLAW");
+  Serial.println("Keep moving the articulations in MANUAL MODE: ");
+  Serial.println("11 - Articulation 1 moves to the right ");
+  Serial.println("12 - Articulation 1 moves to the left ");
+
+  Serial.println("31 - Articulation 3 moves to the right ");
+  Serial.println("32 - Articulation 3 moves to the left ");
+
+  Serial.println("41 - Articulation 4 moves to the right ");
+  Serial.println("42 - Articulation 4 moves to the left ");
+
+  Serial.println("51 - Articulation 5 moves to the right ");
+  Serial.println("52 - Articulation 5 moves to the left ");
+
+  Serial.println("61 - Articulation 6 moves CW ");
+  Serial.println("62 - Articulation 6 moves CCW ");
+
+  Serial.println("71 - THUNDERCLAW Control!");
+
+  Serial.println("4 - Return to MAIN MENU");
+  return;
 }
